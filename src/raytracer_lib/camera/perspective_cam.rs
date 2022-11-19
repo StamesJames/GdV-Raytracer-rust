@@ -46,6 +46,6 @@ impl PerspectiveCam {
     }
 
     pub fn primary_ray(&self, x: f64, y: f64) -> Ray {
-        Ray::new(self.eye.clone(), &self.lower_left + x * &self.x_dir + y * &self.y_dir - &self.eye)
+        Ray::new(self.eye.clone(), &self.lower_left + (x * &self.x_dir) + (y * &self.y_dir) - &self.eye)
     }
 }

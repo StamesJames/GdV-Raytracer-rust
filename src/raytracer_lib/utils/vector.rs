@@ -2,7 +2,7 @@ use std::{f64, ops};
 
 #[derive(Clone)]
 pub struct Vector<T, const N: usize>(pub [T; N]);
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Vec3(pub [f64; 3]);
 
 pub type Color = Vec3;
@@ -21,6 +21,10 @@ impl<const N: usize> Vector<f64, N> {
     }
 }
 impl Vec3 {
+    pub fn comp_mult(lhs: &Self, rhs: &Self) -> Self {
+        return Vec3([lhs[0] * rhs[0], lhs[1] * rhs[1], lhs[2] * rhs[2]]);
+    }
+
     pub fn norm(&self) -> f64 {
         return f64::sqrt(self * self);
     }
@@ -182,28 +186,28 @@ impl ops::Mul<&Vec3> for &Vec3 {
     type Output = f64;
 
     fn mul(self, rhs: &Vec3) -> Self::Output {
-        return f64::sqrt(self.0[0] * rhs.0[0] + self.0[1] * rhs.0[1] + self.0[2] * rhs.0[2]);
+        return self.0[0] * rhs.0[0] + self.0[1] * rhs.0[1] + self.0[2] * rhs.0[2];
     }
 }
 impl ops::Mul<Vec3> for &Vec3 {
     type Output = f64;
 
     fn mul(self, rhs: Vec3) -> Self::Output {
-        return f64::sqrt(self.0[0] * rhs.0[0] + self.0[1] * rhs.0[1] + self.0[2] * rhs.0[2]);
+        return self.0[0] * rhs.0[0] + self.0[1] * rhs.0[1] + self.0[2] * rhs.0[2];
     }
 }
 impl ops::Mul<Vec3> for Vec3 {
     type Output = f64;
 
     fn mul(self, rhs: Vec3) -> Self::Output {
-        return f64::sqrt(self.0[0] * rhs.0[0] + self.0[1] * rhs.0[1] + self.0[2] * rhs.0[2]);
+        return self.0[0] * rhs.0[0] + self.0[1] * rhs.0[1] + self.0[2] * rhs.0[2];
     }
 }
 impl ops::Mul<&Vec3> for Vec3 {
     type Output = f64;
 
     fn mul(self, rhs: &Vec3) -> Self::Output {
-        return f64::sqrt(self.0[0] * rhs.0[0] + self.0[1] * rhs.0[1] + self.0[2] * rhs.0[2]);
+        return self.0[0] * rhs.0[0] + self.0[1] * rhs.0[1] + self.0[2] * rhs.0[2];
     }
 }
 

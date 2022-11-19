@@ -1,25 +1,42 @@
-use super::{RayIntersectable};
+use std::sync::Arc;
+
+use super::RayIntersectable;
 use crate::raytracer_lib::{
     object::material::Material,
-    utils::{ray::Ray, vector::Vec3}, raytracer::IntersectionData,
+    raytracer::IntersectionData,
+    utils::{ray::Ray, vector::Vec3},
 };
 
-pub struct Sphere<'a> {
+pub struct Sphere {
     pub center: Vec3,
     pub radius: f64,
-    pub material: &'a Material,
+    pub material: Arc<Material>,
 }
 
-impl<'a> RayIntersectable for Sphere<'a> {
+impl Sphere {
+    pub fn new(center: Vec3, radius: f64, material: Arc<Material>) -> Self {
+        Self {
+            center,
+            radius,
+            material,
+        }
+    }
+}
+
+impl RayIntersectable for Sphere {
     fn intersect(&self, ray: &Ray) -> Option<IntersectionData> {
         let dir = &ray.direction;
+        // println!("dir is {:?}", dir);
         let oc = &ray.origin - &self.center;
-
+        // println!("oc is {:?}", oc);
+        
         let a = dir * dir;
+        // println!("a is {}", a);
         let b = 2.0 * (dir * &oc);
-        let c = (&oc * &oc) - self.radius * self.radius;
+        // println!("b is {}", b);
+        let c = (&oc * &oc) - (self.radius * self.radius);
         let mut d = b * b - 4.0 * a * c;
-
+        // println!("d is {}", d);
         // is there an intersection?
         if d >= 0.0 {
             d = f64::sqrt(d);
@@ -47,7 +64,7 @@ impl<'a> RayIntersectable for Sphere<'a> {
                     distance: intersection_distance,
                     normal: intersection_normal,
                     point: intersection_point,
-                    material: self.material
+                    material: self.material.clone(),
                 });
             } else {
                 return None;
