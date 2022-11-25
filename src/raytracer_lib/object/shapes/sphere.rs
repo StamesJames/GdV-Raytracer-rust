@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{sync::Arc, ops::Div};
 
 use super::RayIntersectable;
 use crate::raytracer_lib::{
@@ -26,17 +26,12 @@ impl Sphere {
 impl RayIntersectable for Sphere {
     fn intersect(&self, ray: &Ray) -> Option<IntersectionData> {
         let dir = &ray.direction;
-        // println!("dir is {:?}", dir);
         let oc = &ray.origin - &self.center;
-        // println!("oc is {:?}", oc);
         
-        let a = dir * dir;
-        // println!("a is {}", a);
-        let b = 2.0 * (dir * &oc);
-        // println!("b is {}", b);
-        let c = (&oc * &oc) - (self.radius * self.radius);
+        let a = dir.dot(dir);
+        let b = 2.0 * (dir.dot(&oc));
+        let c = (oc.dot(&oc)) - (self.radius * self.radius);
         let mut d = b * b - 4.0 * a * c;
-        // println!("d is {}", d);
         // is there an intersection?
         if d >= 0.0 {
             d = f64::sqrt(d);

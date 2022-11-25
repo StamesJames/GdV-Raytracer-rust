@@ -1,45 +1,51 @@
-use std::sync::Arc;
+use std::{ops::Mul, sync::Arc};
+
+use nalgebra::Vector3;
 
 use super::{
+    image::Image,
     object::{material::Material, shapes::RayIntersectable},
     scene::Scene,
     utils::{
         ray::Ray,
         vector::{Color, Vec3},
-    }, image::Image,
+    },
 };
 
 pub struct Raytracer {
     pub scene: Scene,
     pub max_depth: i64,
+    pub image: Image,
 }
 
 impl Raytracer {
-    pub fn new(scene: Scene, max_depth: i64) -> Self { Self { scene, max_depth } }
+    pub fn new(scene: Scene, max_depth: i64) -> Self {
+        let image = Image::new(
+            scene.cam.width,
+            scene.cam.height,
+            scene.background_color.clone(),
+        );
+        Self {
+            scene,
+            max_depth,
+            image,
+        }
+    }
 
-    pub fn compute_image(&self) -> Image {
-        let mut pixels = std::iter::repeat_with(|| self.scene.background_color.clone())
-            .take((self.scene.cam.width * self.scene.cam.height) as usize)
-            .collect::<Vec<_>>();
+    pub fn compute_image(&mut self) {
         for x in 0..self.scene.cam.width {
             for y in 0..self.scene.cam.height {
                 let ray = self.scene.cam.primary_ray(x as f64, y as f64);
-                let color = Vec3::min(&self.trace(&ray, 0), &Vec3([1., 1., 1.]));
-                let i = y * self.scene.cam.width + x;
-                pixels[i as usize] = color;
+                let color = self.trace(&ray, 0);
+
+                self.image.set_pixel(x, y, color);
             }
         }
-
-        return Image::new(
-            self.scene.cam.width,
-            self.scene.cam.height,
-            pixels,
-        );
     }
 
     fn trace(&self, ray: &Ray, depth: i64) -> Vec3 {
         if depth > self.max_depth {
-            return Vec3([0., 0., 0.]);
+            return Vec3::zeros();
         }
         if let Some(intersection_data) = self.intersect_scene(ray) {
             return self.lighting(
@@ -69,20 +75,25 @@ impl Raytracer {
     }
 
     pub fn lighting(&self, point: &Vec3, normal: &Vec3, view: &Vec3, material: &Material) -> Color {
-        let ambient = Vec3::comp_mult(&self.scene.ambient_light, &material.ambient);
-        let mut diff_plus_spec = Vec3::zero();
-
+        let ambient = Vec3::component_mul(&self.scene.ambient_light, &material.ambient);
+        let mut diff_plus_spec = Vec3::zeros();
         for light in &self.scene.lights {
-            let l = (point - &light.position).normalized();
-            let r = 2. * normal * (normal * &l) - &l;
-            let v = view.normalized();
-            diff_plus_spec = &diff_plus_spec + Vec3::comp_mult(&light.color, 
-                &(
-                    &material.diffuse * (normal * &l) + 
-                    &material.specular * f64::powf(r * v, material.shininess)
+            let shadow_intersect_option =
+                self.intersect_scene(&Ray::new(point.clone(), point.to(&light.position)));
+            if let Some(shadow_intersection) = shadow_intersect_option {
+                if shadow_intersection.distance < Vec3::metric_distance(point, &light.position) {
+                    break;
+                }
+            }
+            let l = point.to(&light.position).normalize();
+            let r = (2. * normal * (normal.dot(&l))) - &l;
+            let v = view.normalize();
+            diff_plus_spec = &diff_plus_spec
+                + Vec3::component_mul(
+                    &light.color,
+                    &(&material.diffuse * (normal.dot(&l))
+                        + &material.specular * f64::powf(r.dot(&v), material.shininess)),
                 )
-            )
-             
         }
 
         return ambient + diff_plus_spec;

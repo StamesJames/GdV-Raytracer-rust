@@ -8,9 +8,10 @@ fn main() {
 
     let scene = Scene::read_from_file("./res/scenes/spheres/spheres.sce").unwrap();
     println!("spheres Scene gelesen");
-    let raytracer = Raytracer::new(scene, 1);
+    let mut raytracer = Raytracer::new(scene, 1);
     println!("Raytracer initialized");
-    let image = raytracer.compute_image();
+    raytracer.compute_image();
+    let image = raytracer.image;
     println!("Image computed");
     if image.write_image("./results/spheres.png") {
         println!("hat was geschrieben;")

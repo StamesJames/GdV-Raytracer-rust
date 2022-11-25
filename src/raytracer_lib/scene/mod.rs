@@ -101,11 +101,11 @@ impl Scene {
     }
 
     fn parse_vec3(tokens: &mut SplitWhitespace) -> Color {
-        return Vec3([
+        return Color::new(
             tokens.next().unwrap().parse().unwrap(),
             tokens.next().unwrap().parse().unwrap(),
             tokens.next().unwrap().parse().unwrap(),
-        ]);
+        );
     }
 
     fn parse_light(tokens: &mut SplitWhitespace) -> Pointlight {

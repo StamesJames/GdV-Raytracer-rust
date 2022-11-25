@@ -1,3 +1,8 @@
+// use nalgebra::Vector3;
+
+// pub type Vec3 = Vector3<f64>;
+// pub type Color = Vector3<f64>;
+
 use std::{f64, ops};
 
 #[derive(Clone)]
@@ -21,14 +26,14 @@ impl<const N: usize> Vector<f64, N> {
     }
 }
 impl Vec3 {
-    pub fn comp_mult(lhs: &Self, rhs: &Self) -> Self {
+    pub fn component_mul(lhs: &Self, rhs: &Self) -> Self {
         return Vec3([lhs[0] * rhs[0], lhs[1] * rhs[1], lhs[2] * rhs[2]]);
     }
 
     pub fn norm(&self) -> f64 {
         return f64::sqrt(self * self);
     }
-    pub fn zero() -> Self {
+    pub fn zeros() -> Self {
         Self([0.; 3])
     }
 
@@ -36,8 +41,8 @@ impl Vec3 {
         Self([s; 3])
     }
 
-    pub fn new(data: [f64; 3]) -> Self {
-        Self(data)
+    pub fn new(x: f64, y: f64, z: f64) -> Self {
+        Self([x,y,z])
     }
 
     pub fn cross(v0: &Vec3, v1: &Vec3) -> Vec3 {
@@ -48,11 +53,11 @@ impl Vec3 {
         ])
     }
 
-    pub fn normalized(&self) -> Vec3 {
+    pub fn normalize(&self) -> Vec3 {
         return self / self.norm();
     }
 
-    pub fn distance(v0: &Vec3, v1: &Vec3) -> f64 {
+    pub fn metric_distance(v0: &Vec3, v1: &Vec3) -> f64 {
         return (v0 - v1).norm();
     }
 
@@ -62,6 +67,14 @@ impl Vec3 {
             f64::min(v0[1], v1[1]),
             f64::min(v0[2], v1[2]),
         ]);
+    }
+
+    pub fn dot(&self, rhs: &Self) -> f64 {
+        return self.0[0] * rhs.0[0] + self.0[1] * rhs.0[1] + self.0[2] * rhs.0[2];
+    }
+
+    pub fn to(&self, destination: &Self) -> Self {
+        return destination - self;
     }
 }
 

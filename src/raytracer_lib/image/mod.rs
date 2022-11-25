@@ -9,7 +9,11 @@ pub struct Image {
 }
 
 impl Image {
-    pub fn new(width: u32, height: u32, pixels: Vec<Color>) -> Self {
+    pub fn new(width: u32, height: u32, background_color: Color) -> Self {
+        let pixels = std::iter::repeat_with(|| background_color.clone())
+        .take((width * height) as usize)
+        .collect::<Vec<_>>();
+
         Self {
             width,
             height,
@@ -17,8 +21,12 @@ impl Image {
         }
     }
 
+    pub fn set_pixels(&mut self, pixels: &[Color]){
+        self.pixels = Vec::from(pixels);
+    }
+
     pub fn set_pixel(&mut self, x: u32, y: u32, color: Color) {
-        let el = y * self.width + x;
+        let el = (self.height - 1 - y) * self.width + x;
         self.pixels[el as usize] = color;
     }
 

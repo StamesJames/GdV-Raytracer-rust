@@ -16,8 +16,8 @@ pub struct PerspectiveCam {
 
 impl PerspectiveCam {
     pub fn new(eye: Vec3, center: Vec3, up: Vec3, fovy: f64, width: u32, height: u32) -> Self {
-        let view = (&center - &eye).normalized();
-        let dist = Vec3::distance(&center, &eye);
+        let view = (&center - &eye).normalize();
+        let dist = Vec3::metric_distance(&center, &eye);
         // compute width & height of the image plane
         // based on the opening angle of the camera (fovy) and the distance
         // of the eye to the near plane (dist)
@@ -27,8 +27,8 @@ impl PerspectiveCam {
         let image_width = w / h * image_height;
 
         // compute right and up vectors on the image plane
-        let x_dir = &Vec3::cross(&view, &up).normalized() * (image_width / w);
-        let y_dir = &Vec3::cross(&x_dir, &view).normalized() * (image_height / h);
+        let x_dir = &Vec3::cross(&view, &up).normalize() * (image_width / w);
+        let y_dir = &Vec3::cross(&x_dir, &view).normalize() * (image_height / h);
 
         // compute lower left corner on the image plane
         let lower_left = &center - &((0.5 * w) * &x_dir) - 0.5 * h * &y_dir;
