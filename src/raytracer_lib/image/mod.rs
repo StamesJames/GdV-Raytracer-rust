@@ -21,8 +21,8 @@ impl Image {
         }
     }
 
-    pub fn set_pixels(&mut self, pixels: &[Color]){
-        self.pixels = Vec::from(pixels);
+    pub fn set_pixels(&mut self, pixels: Vec<Color>){
+        self.pixels = pixels;
     }
 
     pub fn set_pixel(&mut self, x: u32, y: u32, color: Color) {

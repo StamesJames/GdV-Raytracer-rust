@@ -1,4 +1,4 @@
-use cg_raytracer_rust::raytracer_lib::{raytracer::Raytracer, scene::Scene, utils::vector::Vec3};
+use cg_raytracer_rust::raytracer_lib::{raytracer::Raytracer, scene::Scene};
 
 fn main() {
     // let vec_1 = Vec3([2.,2.,2.]);
@@ -18,5 +18,4 @@ fn main() {
     } else {
         println!("hat nichts geschrieben")
     }
-    
 }

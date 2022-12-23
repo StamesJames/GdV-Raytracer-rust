@@ -1,6 +1,6 @@
-use std::{ops::Mul, sync::Arc};
-
-use nalgebra::Vector3;
+use rayon::prelude::*;
+use std::sync::{Arc, Mutex};
+// use nalgebra::Vector3;
 
 use super::{
     image::Image,
@@ -33,17 +33,34 @@ impl Raytracer {
     }
 
     pub fn compute_image(&mut self) {
-        for x in 0..self.scene.cam.width {
-            for y in 0..self.scene.cam.height {
-                let ray = self.scene.cam.primary_ray(x as f64, y as f64);
-                let color = self.trace(&ray, 0);
+        let width = self.scene.cam.width;
+        let height = self.scene.cam.height;
+        let cam = &self.scene.cam;
+        let scene = &self.scene;
+        // let self_mutex = Arc::new(Mutex::new(&mut self.image));
 
-                self.image.set_pixel(x, y, color);
-            }
-        }
+        let pixels : Vec<Vec3> = 
+        (0..(width*height)).into_par_iter().map(|i| {
+                let x = i%width;
+                let y = i/width;
+
+                let ray = cam.primary_ray(x, y);
+                self.trace(&ray, self.max_depth)
+            
+        }).collect();
+        self.image.set_pixels(pixels);
+
+        // (0..width).into_par_iter().for_each(|x| {
+        //     (0..height).into_par_iter().for_each(|y| {
+        //         let ray = cam.primary_ray(x, y);
+        //         let color = scene.trace(&ray, 0, self.max_depth);
+
+        //         self_mutex.lock().unwrap().set_pixel(x, y, color);
+        //     })
+        // })
     }
 
-    fn trace(&self, ray: &Ray, depth: i64) -> Vec3 {
+    pub fn trace(&self, ray: &Ray, depth: i64) -> Vec3 {
         if depth > self.max_depth {
             return Vec3::zeros();
         }
